@@ -1,83 +1,143 @@
-# Development Guide
+# Development Guide - MonoGame
 
 ## Setup Instructions
 
 ### Prerequisites
-- Unity 2022 LTS or newer
-- Visual Studio 2022 or JetBrains Rider
-- Git
+- **MonoGame SDK 3.8.1+**
+- **Visual Studio 2022** or **VS Code**
+- **.NET 6.0 or later**
 
-### Project Setup
+### Installation
 
-1. Clone the repository:
+1. Install MonoGame tools:
    ```bash
-   git clone https://github.com/GRANDY-4/Make-It-Rain.git
-   cd Make-It-Rain
+   dotnet tool install -g MonoGame.Content.Builder.Task
+   dotnet new install MonoGame.Templates
    ```
 
-2. Open the project in Unity
+2. Create project:
+   ```bash
+   dotnet new mgdesktopgl -n MakeItRain
+   cd MakeItRain
+   ```
 
-3. The project structure is already organized — start developing!
+3. Clone this repo content into the project
+
+4. Build and run:
+   ```bash
+   dotnet build
+   dotnet run
+   ```
+
+## MonoGame Game Loop
+
+MonoGame uses a classic game loop pattern:
+
+```csharp
+protected override void Update(GameTime gameTime)
+{
+    // Handle input
+    // Update game logic
+    // Physics calculations
+}
+
+protected override void Draw(GameTime gameTime)
+{
+    // Clear screen
+    // Draw all sprites
+    // Render UI
+}
+```
 
 ## Code Organization
 
 ### Namespaces
-All scripts are organized by namespace:
-- `MIR.Core` — Core game systems (GameManager)
-- `MIR.Player` — Player-related scripts
-- `MIR.UI` — User interface
-- `MIR.Utilities` — Helper functions and constants
+- `MIR.Core` — Core game systems (GameManager, SceneManager)
+- `MIR.Player` — Player-related code
+- `MIR.UI` — UI rendering and management
+- `MIR.Utilities` — Constants and helpers
+- `MIR.Entities` — Game entities (enemies, NPCs, etc.)
 
-### Naming Conventions
-- **Classes:** PascalCase (e.g., `GameManager`)
-- **Methods:** PascalCase (e.g., `HandleInput()`)
-- **Variables:** camelCase (e.g., `moveSpeed`)
-- **Constants:** UPPER_SNAKE_CASE (e.g., `TAG_PLAYER`)
-- **Private fields:** camelCase with leading underscore (e.g., `_moveDirection`)
+### Key Classes
 
-### File Organization
-- One class per file
-- File name matches class name
-- Place files in appropriate folders under `Assets/Scripts/`
+**Game.cs**
+- Entry point for MonoGame
+- Manages graphics device
+- Calls GameManager Update/Draw
 
-## Scene Structure
+**GameManager.cs**
+- Core game logic
+- Game state management
+- Input handling
+- Update/Draw delegation
 
-The main scene (`Main.unity`) contains:
-- **GameManager** — Core game controller
-- **Player** — Player character with PlayerController and CharacterController
-- **Camera** — Main camera (child of Player)
-- **Canvas** — UI root
+**GameState Enum**
+- Menu
+- Loading
+- Playing
+- Paused
+- GameOver
+
+## Input Handling
+
+```csharp
+KeyboardState keyboardState = Keyboard.GetState();
+GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+
+if (keyboardState.IsKeyDown(Keys.W))
+{
+    // Move forward
+}
+```
+
+## Drawing Sprites
+
+```csharp
+// Draw a sprite from a texture
+spriteBatch.Draw(texture, position, Color.White);
+
+// Draw a colored rectangle
+spriteBatch.Draw(
+    pixelTexture,
+    new Rectangle(x, y, width, height),
+    Color.Red
+);
+```
+
+## Content Pipeline
+
+Place assets in `Content/` folder:
+- Textures in `Content/Textures/`
+- Audio in `Content/Audio/`
+- Fonts in `Content/Fonts/`
+
+Load in `LoadContent()`:
+```csharp
+var texture = Content.Load<Texture2D>("Textures/player");
+```
+
+## Running the Game
+
+```bash
+dotnet run
+```
+
+Controls:
+- **WASD** — Move player
+- **P** — Pause/Resume
+- **ESC** — Exit
 
 ## Next Steps
 
-1. Extend the `PlayerController` with:
-   - Jump mechanics
-   - Sprint ability
-   - Animation integration
-
-2. Add camera controller:
-   - Third-person follow camera
-   - Mouse look controls
-
-3. Create basic mission system:
-   - Mission data structure
-   - Mission briefing UI
-   - Objective tracking
-
-4. Implement enemy AI:
-   - Patrol behavior
-   - Detection system
-   - Combat mechanics
-
-## Tips
-
-- Use the `Debug.Log()` calls throughout to track execution
-- Keep systems modular — each manager should handle one responsibility
-- Use serialized fields for tuning values without recompiling
-- Test frequently in the editor
+1. Add sprite loading from textures
+2. Implement basic collision detection
+3. Add enemy entities
+4. Create mission system
+5. Build UI framework
+6. Add audio system
 
 ## Resources
 
-- [Unity Documentation](https://docs.unity3d.com/)
-- [C# Best Practices](https://learn.microsoft.com/en-us/dotnet/csharp/)
-- [Payday 2 Game Design](https://en.wikipedia.org/wiki/Payday_2)
+- [MonoGame Documentation](http://www.monogame.net/documentation/)
+- [MonoGame Tutorials](https://docs.monogame.net/articles/getting_started.html)
+- [XNA Framework Guide](https://learn.microsoft.com/en-us/windows/win32/direct3d9/xna-framework)
